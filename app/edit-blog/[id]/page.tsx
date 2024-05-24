@@ -53,7 +53,7 @@ const EditBlog = () => {
           },
         }
       );
-      router.push('/'); // Redirect back to the main page after saving
+      router.push('/'); 
     } catch (error) {
       console.error("Failed to save changes:", error);
     }

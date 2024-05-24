@@ -6,7 +6,7 @@ export default function Home() {
       <title>Blog Home</title>
 
       <main className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-4xl font-bold">Welcome to the Blog</h1>
+        <h1 className="text-4xl font-bold">Welcome to the Blog Website</h1>
       </main>
     </div>
   );

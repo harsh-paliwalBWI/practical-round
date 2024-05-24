@@ -2,7 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../context/AuthContext";
+
 
 export default function AddBlog() {
   const [title, setTitle] = useState("");
@@ -13,8 +13,8 @@ export default function AddBlog() {
 
   const handleAddBlog = async (e: any) => {
     e.preventDefault();
-    const formData = { title , description, image, metatitle:"blogmetatitle", metadesc:"blogmetadesc", link:"thisisblog"  };
-    console.log(formData);
+    const formData = { title , description, image, metatitle:`meta ${title}`, metadesc:`meta ${description}`, link:title.split(' ').join('_')};
+
     const token= localStorage.getItem("token")
     try {
       await axios.post(

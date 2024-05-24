@@ -3,7 +3,6 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-
 export default function AddBlog() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -13,9 +12,16 @@ export default function AddBlog() {
 
   const handleAddBlog = async (e: any) => {
     e.preventDefault();
-    const formData = { title , description, image, metatitle:`meta ${title}`, metadesc:`meta ${description}`, link:title.split(' ').join('_')};
+    const formData = {
+      title,
+      description,
+      image,
+      metatitle: `meta ${title}`,
+      metadesc: `meta ${description}`,
+      link: title.split(" ").join("_"),
+    };
 
-    const token= localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/blog`,
@@ -56,7 +62,6 @@ export default function AddBlog() {
           onChange={(e) => setImage(e.target.files[0])}
           className="block border border-gray-300 p-2 mb-4 w-full"
           placeholder=""
-    
         />
         <button type="submit" className="bg-blue-500 text-white p-2 w-full">
           Add Blog

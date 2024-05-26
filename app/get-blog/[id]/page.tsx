@@ -9,6 +9,13 @@ interface Blog {
   title: string;
   description: string;
   image: string;
+  comments: {
+    _id: string;
+    comment: string;
+    user: {
+      userName: string;
+    };
+  }[];
 }
 
 const BlogDetail = ({ params }: any) => {
@@ -17,36 +24,39 @@ const BlogDetail = ({ params }: any) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<any[]>([]);
   const router = useRouter();
 
   const id = params.id;
 
-  useEffect(() => {
-    const fetchBlogData = async () => {
-      if (id) {
-        const token = localStorage.getItem("token");
-        try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/blog/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+  const fetchBlogData = async () => {
+    if (id) {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/blog/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-          const blogData = response.data.resultAggregate[0];
-          setBlog(blogData);
-          setEditedTitle(blogData.title);
-          setEditedDescription(blogData.description);
-          setLoading(false);
-        } catch (error) {
-          console.error("Error fetching blog data:", error);
-          setLoading(false);
-        }
+        const blogData = response.data.resultAggregate[0];
+        setBlog(blogData);
+        setEditedTitle(blogData.title);
+        setEditedDescription(blogData.description);
+        setComments(blogData.comments || []);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching blog data:", error);
+        setLoading(false);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchBlogData();
   }, [id]);
 
@@ -95,13 +105,35 @@ const BlogDetail = ({ params }: any) => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/blog/postComment/${id}`,
+        {
+          comment: comment,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setComment("");
+      fetchBlogData();
+    } catch (error) {
+      console.error("Error posting comment:", error);
+    }
+  };
+
+  if (loading) return <div className="w-full h-100vh flex justify-center items-center"><p className="text-center font-bold text-xl sm:text-2xl md:text-3xl">Loading...</p></div>;
 
   if (!blog) return <div>No blog found</div>;
 
   return (
     <div className="min-h-screen p-6 flex flex-col gap-5">
-      {}
       {isEditing && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
           <div className="bg-white p-8 rounded-lg">
@@ -163,6 +195,42 @@ const BlogDetail = ({ params }: any) => {
         <h1 className="text-3xl mb-6">{blog.title}</h1>
         <p className="mt-4 text-gray-700">{blog.description}</p>
       </div>
+
+      <div className="bg-white p-4 rounded border-2 border-gray-300 mt-6">
+        <h2 className="text-2xl mb-4">Comments</h2>
+        {comments.length > 0 ? (
+          comments.map((commentObj, index) => (
+            <div key={index} className="mb-4">
+              <p className="text-gray-700 mb-1">
+                <strong>{commentObj.user.userName}:</strong>{" "}
+                {commentObj.comment}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No comments yet.</p>
+        )}
+      </div>
+
+      <form
+        onSubmit={handleCommentSubmit}
+        className="bg-white p-4 rounded border-2 border-gray-300 mt-6"
+      >
+        <input
+          type="text"
+          name="comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Add a comment..."
+          className="block border border-gray-300 p-2 mb-4 w-full"
+        />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Submit Comment
+        </button>
+      </form>
     </div>
   );
 };

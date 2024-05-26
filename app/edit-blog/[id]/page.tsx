@@ -59,7 +59,7 @@ const EditBlog = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="w-full h-full flex justify-center items-center"><p className="text-center font-bold text-xl sm:text-2xl md:text-3xl">Loading...</p></div>;
 
   return (
     <div className="min-h-screen p-6">
